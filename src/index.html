@@ -40,10 +40,10 @@
     const yukonApiUrl = 'https://yukon-stage.adobe.io/api/v1/inference/question-answer';
 
     async function getImsToken() {
-      const response = await fetch(authServiceUrl,
+      const response = await fetch(authServiceUrl,{
                                   method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  );
+                                  headers: { 'Content-Type': 'application/json' }
+                                });
       if (!response.ok) {
         throw new Error('Failed to retrieve tokens from auth service');
       }
