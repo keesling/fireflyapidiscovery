@@ -1,17 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Yukon Web App</title>
+  <style>
+    #responseLog {
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-top: 1em;
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+    }
+    .entry {
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+      border-bottom: 1px dashed #ccc;
+    }
+    .prompt {
+      font-weight: bold;
+    }
+    .response {
+      margin-top: 0.3em;
+    }
+  </style>
+  <!-- Include marked.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/
 </head>
-
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
+  <h1>Project Yukon Web App</h1>
+  <input type="text" id="prompt" placeholder="Enter your prompt" />
+  <button onclick="sendPrompt()">Send Prompt</button>
+  <button onclick="clearResponses()">Clear</button>
 
+  <div id="responseLog"></div>
+
+  <script>
+    const authServiceUrl = 'https://prod-24.canadacentral.logic.azure.com:443/workflows/ec8d6999c82c453892fae83156386937/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4G56YGN3XF8y04ZjUhDjQVCGFiEu8l80Be0y_XrRjZU';
+    const yukonApiUrl = 'https://yukon-stage.adobe.io/api/v1/inference/question-answer'; // Replace with your Yukon endpoint
+
+    async function getImsToken() {
+        const response = await fetch(authServiceUrl);
+        if (!response.ok) {
+          throw new Error('Failed to retrieve tokens from auth service');
+        }
+        const data = await response.json();
+        return data.imsToken;
+      }
+      
+ const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: params
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get access token');
+      }
+
+      const data = await response.json();
+      return data.access_token;
+    }
+
+    async function sendPrompt() {
+      const promptInput = document.getElementById('prompt');
+      const prompt = promptInput.value.trim();
+      const responseLog = document.getElementById('responseLog');
+
+      if (!prompt) return;
+
+      promptInput.value = '';
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+      entry.innerHTML = `<div class="prompt">Prompt: ${prompt}</div><div class="response">Loading...</div>`;
+      responseLog.appendChild(entry);
+
+      try {
+        const token = await getImsToken();
+        
+        const requestBody = {
+          request_id: crypto.randomUUID(),
+          collections: ['Ai-Assistant-Discovery-Guide'],
+          inputs: prompt,
+          response_format: {
+            format: "AUTO",
+            style: "AUTO",
+            tone: "AUTO"
+          },
+          source_options: ["COLLECTION"],
+          inference_mode: "STANDARD"
+        };
+
+
+        const response = await fetch(yukonApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+        const htmlResponse = marked.parse(data.response); // Convert markdown to HTML
+        entry.querySelector('.response').innerHTML = `<div class="response">${htmlResponse}</div>`;
+      } catch (error) {
+        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+      }
+    }
+
+    function clearResponses() {
+      document.getElementById('responseLog').innerHTML = '';
+    }
+  </script>
+</body>
 </html>
