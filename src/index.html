@@ -81,7 +81,7 @@
         };
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const timeout = setTimeout(() => controller.abort(), 240000); // 15s timeout
 
         const response = await fetch(yukonApiUrl, {
           method: 'POST',
