@@ -100,6 +100,7 @@
         }
 
         const data = await response.json();
+        console.log(data);
         const htmlResponse = marked.parse(data.response || 'No response received.');
         entry.querySelector('.response').innerHTML = htmlResponse;
       } catch (error) {
