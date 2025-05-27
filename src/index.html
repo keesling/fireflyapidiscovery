@@ -102,7 +102,7 @@
         const data = await response.json();
         console.log(data);
         const htmlResponse = marked.parse(data.response || 'No response received.');
-        entry.querySelector('.response').innerHTML = htmlResponse;
+        entry.querySelector('.response').innerHTML = data.response;
       } catch (error) {
         entry.querySelector('.response').innerText = `Error: ${error.message}`;
         console.error('Request failed:', error);
