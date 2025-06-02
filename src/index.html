@@ -25,7 +25,7 @@
       margin-top: 0.3em;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  https://cdn.jsdelivr.net/npm/marked/marked.min.js
 </head>
 <body>
   <h1>Project Yukon Web App</h1>
@@ -40,10 +40,10 @@
     const yukonApiUrl = 'https://yukon-stage.adobe.io/api/v1/inference/question-answer';
 
     async function getImsToken() {
-      const response = await fetch(authServiceUrl,{
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' }
-                                });
+      const response = await fetch(authServiceUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
       if (!response.ok) {
         throw new Error('Failed to retrieve tokens from auth service');
       }
@@ -81,7 +81,7 @@
         };
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 240000); // 15s timeout
+        const timeout = setTimeout(() => controller.abort(), 240000); // 4 minutes
 
         const response = await fetch(yukonApiUrl, {
           method: 'POST',
@@ -101,6 +101,7 @@
 
         const data = await response.json();
         console.log(data);
+
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
@@ -108,30 +109,18 @@
         let attributionHtml = '';
         if (data.source && typeof data.source === 'object') {
           const attributions = Object.entries(data.source)
-          .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)  
-          .join('');
+            .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)
+            .join('');
           attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
         }
 
-        const markdown = data.generated_text || 'No response received.';
-const htmlResponse = marked.parse(markdown);
+        entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
 
-// Build attribution list
-let attributionHtml = '';
-if (data.source && typeof data.source === 'object') {
-  const attributions = Object.entries(data.source)
-    .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)
-    .join('');
-  attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
-}
-
-
-entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
-      } catch (error) {
-        entry.querySelector('.response').innerText = `Error: ${error.message}`;
-        console.error('Request failed:', error);
-      }
-    }
+      } catch (error) {
+        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+        console.error('Request failed:', error);
+      }
+    }
 
     function clearResponses() {
       document.getElementById('responseLog').innerHTML = '';
