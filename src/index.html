@@ -25,7 +25,7 @@
       margin-top: 0.3em;
     }
   </style>
-  https://cdn.jsdelivr.net/npm/marked/marked.min.js
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <h1>Project Yukon Web App</h1>
@@ -105,7 +105,6 @@
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
-        // Build attribution list
         let attributionHtml = '';
         if (data.source && typeof data.source === 'object') {
           const attributions = Object.entries(data.source)
