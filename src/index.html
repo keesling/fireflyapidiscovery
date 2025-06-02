@@ -113,11 +113,25 @@
           attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
         }
 
-        entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
+        const markdown = data.generated_text || 'No response received.';
+const htmlResponse = marked.parse(markdown);
 
-        console.error('Request failed:', error);
-      }
-    }
+// Build attribution list
+let attributionHtml = '';
+if (data.source && typeof data.source === 'object') {
+  const attributions = Object.entries(data.source)
+    .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)
+    .join('');
+  attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
+}
+
+
+entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
+      } catch (error) {
+        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+        console.error('Request failed:', error);
+      }
+    }
 
     function clearResponses() {
       document.getElementById('responseLog').innerHTML = '';
