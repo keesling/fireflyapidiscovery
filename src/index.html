@@ -101,10 +101,20 @@
 
         const data = await response.json();
         console.log(data);
-        const htmlResponse = marked.parse(data.generated_text || 'No response received.');
-        entry.querySelector('.response').innerHTML = htmlResponse;
-      } catch (error) {
-        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+        const markdown = data.generated_text || 'No response received.';
+        const htmlResponse = marked.parse(markdown);
+
+        // Build attribution list
+        let attributionHtml = '';
+        if (data.source && typeof data.source === 'object') {
+          const attributions = Object.entries(data.source)
+          .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)  
+          .join('');
+          attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
+        }
+
+        entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
+
         console.error('Request failed:', error);
       }
     }
