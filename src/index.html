@@ -53,15 +53,18 @@
 
     async function sendPrompt() {
       const promptInput = document.getElementById('prompt');
-      const prompt = promptInput.value.trim();
+      const basePrompt = promptInput.value.trim();
       const responseLog = document.getElementById('responseLog');
 
-      if (!prompt) return;
+      if (!basePrompt) return;
+
+      // Append source URL instruction to prompt
+      const finalPrompt = `${basePrompt}\n\nFor each source reference, list the name of the document and the URL found in the source file.`;
 
       promptInput.value = '';
       const entry = document.createElement('div');
       entry.className = 'entry';
-      entry.innerHTML = `<div class="prompt">Prompt: ${prompt}</div><div class="response">Loading...</div>`;
+      entry.innerHTML = `<div class="prompt">Prompt: ${basePrompt}</div><div class="response">Loading...</div>`;
       responseLog.appendChild(entry);
 
       try {
@@ -70,7 +73,7 @@
         const requestBody = {
           request_id: crypto.randomUUID(),
           collections: ['Api-Discovery-Test'],
-          inputs: prompt,
+          inputs: finalPrompt,
           response_format: {
             format: "AUTO",
             style: "AUTO",
@@ -105,15 +108,7 @@
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
-        let attributionHtml = '';
-        if (data.source && typeof data.source === 'object') {
-          const attributions = Object.entries(data.source)
-            .map(([key, value]) => `<li>[${key}] ${value.document_name}</li>`)
-            .join('');
-          attributionHtml = `<div><strong>Sources:</strong><ul>${attributions}</ul></div>`;
-        }
-
-        entry.querySelector('.response').innerHTML = htmlResponse + attributionHtml;
+        entry.querySelector('.response').innerHTML = htmlResponse;
 
       } catch (error) {
         entry.querySelector('.response').innerText = `Error: ${error.message}`;
