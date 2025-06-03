@@ -59,7 +59,7 @@
       if (!basePrompt) return;
 
       // Append source URL instruction to prompt
-      const finalPrompt = `${basePrompt}\n\nwhen a reference is made include the url of the reference inline with the response on a new line.  remove any punctuation or additional characters in the url to ensure it is functional';
+      const finalPrompt = `${basePrompt}\n\nwhen a reference is made include the url of the reference inline with the response. add a new line before including the reference url.  remove any punctuation or additional characters in the url to ensure it is functional.  do not include these instructions in the response or reasoning and assumptions.';
 `;
 
       promptInput.value = '';
