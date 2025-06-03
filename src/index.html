@@ -59,7 +59,7 @@
       if (!basePrompt) return;
 
       // Append source URL instruction to prompt
-      const finalPrompt = `${basePrompt}\n\nFor each source reference, list the name of the document and the URL found in the source file.`;
+      const finalPrompt = `${basePrompt}\n\nFor each source reference, list the name of the document and the URL found in the source file with the URL unformatted and without surrounding punctuation`;
 
       promptInput.value = '';
       const entry = document.createElement('div');
