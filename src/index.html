@@ -59,7 +59,7 @@
       if (!basePrompt) return;
 
       // Append source URL instruction to prompt
-      const finalPrompt = `${basePrompt}\n\nAfter your response, provide a reference list with each source you used. Use the format:\\n[n] document_name – https://example.com/path\\nEnsure the reference numbers match exactly those used in the main response.';
+      const finalPrompt = `${basePrompt}\n\nwhen a reference is made include the url of the reference inline with the response on a new line.  remove any punctuation or additional characters in the url to ensure it is functional';
 `;
 
       promptInput.value = '';
