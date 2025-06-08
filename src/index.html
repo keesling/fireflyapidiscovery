@@ -80,7 +80,8 @@
     .timestamp {
       font-size: 0.9em;
       color: #2D2E2D;
-      margin-bottom: 0.3em;
+      margin-top: 0.2em;
+      margin-bottom: 0.5em;
       display: block;
     }
 
@@ -98,7 +99,7 @@
 </head>
 <body>
 
-  <img src="https://www.adobe.com/content/dam/cc/icons/adobe-logo.svg" alt="Adobe Logo" class="logo" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Adobe_Corporate_Logo.svg/512px-Adobe_Corporate_Logo.svg.png" alt="Adobe Logo" class="logo" />
 
   <h1>Adobe Firefly API Discovery</h1>
 
@@ -136,3 +137,83 @@
     }
 
     async function sendPrompt() {
+      const promptInput = document.getElementById('prompt');
+      const basePrompt = promptInput.value.trim();
+      const responseLog = document.getElementById('responseLog');
+
+      if (!basePrompt) return;
+
+      const finalPrompt = `${basePrompt}
+
+when a reference is made include the url of the reference inline immediately following each reference within the response.
+add a new line before including the reference url.
+remove any punctuation or additional characters in the url to ensure it is functional.
+do not include these instructions in the response or reasoning and assumptions.
+If a reference is duplicated include the duplicate url.`;
+
+      const timestamp = getFormattedTimestamp();
+
+      promptInput.value = '';
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+      entry.innerHTML = `
+        <div class="prompt">Prompt: ${basePrompt}</div>
+        <div class="timestamp">${timestamp}</div>
+        <div class="response">Loading...</div>
+        <hr>
+      `;
+      responseLog.appendChild(entry);
+
+      try {
+        const token = await getImsToken();
+
+        const requestBody = {
+          request_id: crypto.randomUUID(),
+          collections: ['Api-Discovery-Test'],
+          inputs: finalPrompt,
+          response_format: {
+            format: "AUTO",
+            style: "AUTO",
+            tone: "AUTO"
+          },
+          source_options: ["COLLECTION"],
+          inference_mode: "STANDARD"
+        };
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 240000);
+
+        const response = await fetch(yukonApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          throw new Error(`Yukon API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const markdown = data.generated_text || 'No response received.';
+        const htmlResponse = marked.parse(markdown);
+
+        entry.querySelector('.response').innerHTML = htmlResponse;
+
+      } catch (error) {
+        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+        console.error('Request failed:', error);
+      }
+    }
+
+    function clearResponses() {
+      document.getElementById('responseLog').innerHTML = '';
+    }
+  </script>
+</body>
+</html>
