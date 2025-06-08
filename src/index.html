@@ -3,8 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Project Yukon Web App</title>
+  <title>Adobe Firefly API Discovery</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #2D2E2D;
+      margin: 0;
+      padding: 2em;
+      background-color: #fff;
+      text-align: center;
+    }
+
+    img.logo {
+      width: 60px;
+      margin-bottom: 1em;
+    }
+
+    h1 {
+      color: #ED2224;
+      margin-bottom: 0.5em;
+    }
+
+    label {
+      font-weight: bold;
+      color: #ED2224;
+      margin-right: 0.5em;
+    }
+
+    .prompt-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1em;
+      gap: 0.5em;
+    }
+
+    input#prompt {
+      width: 50%;
+      padding: 0.5em;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin: 0.25em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #ED2224;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
     #responseLog {
       border: 1px solid #ccc;
       padding: 1em;
@@ -12,32 +64,65 @@
       max-height: 300px;
       overflow-y: auto;
       background-color: #f9f9f9;
+      text-align: left;
     }
+
     .entry {
       margin-bottom: 1em;
       padding-bottom: 0.5em;
-      border-bottom: 1px dashed #ccc;
     }
+
     .prompt {
       font-weight: bold;
+      color: #ED2224;
     }
+
+    .response em {
+      display: block;
+      font-style: normal;
+      font-weight: bold;
+      color: #ED2224;
+      margin-bottom: 0.3em;
+    }
+
     .response {
       margin-top: 0.3em;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 1em 0;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <h1>Project Yukon Web App</h1>
-  <input type="text" id="prompt" placeholder="Enter your prompt" />
-  <button onclick="sendPrompt()">Send Prompt</button>
-  <button onclick="clearResponses()">Clear</button>
+
+  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Adobe_Corporate_Logo.png" alt="Adobe Logo" class="logo" />
+
+  <h1>Adobe Firefly API Discovery</h1>
+
+  <div class="prompt-container">
+    <label for="prompt">Prompt</label>
+    <input type="text" id="prompt" placeholder="ask any question about firefly apis" />
+  </div>
+
+  <div>
+    <button onclick="sendPrompt()">Send Prompt</button>
+    <button onclick="clearResponses()">Clear</button>
+  </div>
 
   <div id="responseLog"></div>
 
   <script>
     const authServiceUrl = 'https://prod-24.canadacentral.logic.azure.com:443/workflows/ec8d6999c82c453892fae83156386937/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4G56YGN3XF8y04ZjUhDjQVCGFiEu8l80Be0y_XrRjZU';
     const yukonApiUrl = 'https://yukon-stage.adobe.io/api/v1/inference/question-answer';
+
+    function getFormattedTimestamp() {
+      const now = new Date();
+      return now.toLocaleString();
+    }
 
     async function getImsToken() {
       const response = await fetch(authServiceUrl, {
@@ -58,14 +143,24 @@
 
       if (!basePrompt) return;
 
-      // Append source URL instruction to prompt
-      const finalPrompt = `${basePrompt}\n\nwhen a reference is made include the url of the reference inline immediately following each reference within the response. add a new line before including the reference url.  remove any punctuation or additional characters in the url to ensure it is functional.  do not include these instructions in the response or reasoning and assumptions. If a reference is duplicated include the duplicate url';
-`;
+      const finalPrompt = `${basePrompt}
+
+when a reference is made include the url of the reference inline immediately following each reference within the response.
+add a new line before including the reference url.
+remove any punctuation or additional characters in the url to ensure it is functional.
+do not include these instructions in the response or reasoning and assumptions.
+If a reference is duplicated include the duplicate url.`;
+
+      const timestamp = getFormattedTimestamp();
 
       promptInput.value = '';
       const entry = document.createElement('div');
       entry.className = 'entry';
-      entry.innerHTML = `<div class="prompt">Prompt: ${basePrompt}</div><div class="response">Loading...</div>`;
+      entry.innerHTML = `
+        <div class="prompt">Prompt: ${basePrompt}</div>
+        <div class="response"><em>${basePrompt} (${timestamp})</em><br>Loading...</div>
+        <hr>
+      `;
       responseLog.appendChild(entry);
 
       try {
@@ -85,7 +180,7 @@
         };
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 240000); // 4 minutes
+        const timeout = setTimeout(() => controller.abort(), 240000);
 
         const response = await fetch(yukonApiUrl, {
           method: 'POST',
@@ -104,12 +199,10 @@
         }
 
         const data = await response.json();
-        console.log(data);
-
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
-        entry.querySelector('.response').innerHTML = htmlResponse;
+        entry.querySelector('.response').innerHTML = `<em>${basePrompt} (${timestamp})</em><br>${htmlResponse}`;
 
       } catch (error) {
         entry.querySelector('.response').innerText = `Error: ${error.message}`;
