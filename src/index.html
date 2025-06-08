@@ -72,16 +72,13 @@
       padding-bottom: 0.5em;
     }
 
-    .prompt {
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: bold;
       color: #ED2224;
-    }
-
-    .timestamp {
-      font-size: 0.9em;
-      color: #2D2E2D;
-      margin-bottom: 0.3em;
-      display: block;
+      margin-bottom: 0.5em;
     }
 
     .response {
@@ -160,8 +157,13 @@ If a reference is duplicated include the duplicate url.`;
       const entry = document.createElement('div');
       entry.className = 'entry';
       entry.innerHTML = `
-        <div class="prompt">Prompt: ${basePrompt}</div>
-        <div class="response"><span class="timestamp">${timestamp}</span>Loading...</div>
+        <div class="response">
+          <div class="response-header">
+            <span class="prompt">Prompt: ${basePrompt}</span>
+            <span class="timestamp">${timestamp}</span>
+          </div>
+          <div class="response-content">Loading...</div>
+        </div>
         <hr>
       `;
       responseLog.appendChild(entry);
@@ -205,10 +207,10 @@ If a reference is duplicated include the duplicate url.`;
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
-        entry.querySelector('.response').innerHTML = `<span class="timestamp">${timestamp}</span><div>${htmlResponse}</div>`;
+        entry.querySelector('.response-content').innerHTML = htmlResponse;
 
       } catch (error) {
-        entry.querySelector('.response').innerText = `Error: ${error.message}`;
+        entry.querySelector('.response-content').innerText = `Error: ${error.message}`;
         console.error('Request failed:', error);
       }
     }
