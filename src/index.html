@@ -80,8 +80,7 @@
     .timestamp {
       font-size: 0.9em;
       color: #2D2E2D;
-      margin-top: 0.2em;
-      margin-bottom: 0.5em;
+      margin-bottom: 0.3em;
       display: block;
     }
 
@@ -100,11 +99,10 @@
 <body>
 
   <img
-  src="https://get.adobe.com/reader/afe53b9/images/adobe_logo_header.svg"
-  alt="Adobe Logo"
-  class="logo"
-/>
-
+    src="https://get.adobe.com/reader/afe53b9/images/adobe_logo_header.svg"
+    alt="Adobe Logo"
+    class="logo"
+  />
 
   <h1>Adobe Firefly API Discovery</h1>
 
@@ -163,8 +161,7 @@ If a reference is duplicated include the duplicate url.`;
       entry.className = 'entry';
       entry.innerHTML = `
         <div class="prompt">Prompt: ${basePrompt}</div>
-        <div class="timestamp">${timestamp}</div>
-        <div class="response">Loading...</div>
+        <div class="response"><span class="timestamp">${timestamp}</span>Loading...</div>
         <hr>
       `;
       responseLog.appendChild(entry);
@@ -208,7 +205,7 @@ If a reference is duplicated include the duplicate url.`;
         const markdown = data.generated_text || 'No response received.';
         const htmlResponse = marked.parse(markdown);
 
-        entry.querySelector('.response').innerHTML = htmlResponse;
+        entry.querySelector('.response').innerHTML = `<span class="timestamp">${timestamp}</span><div>${htmlResponse}</div>`;
 
       } catch (error) {
         entry.querySelector('.response').innerText = `Error: ${error.message}`;
