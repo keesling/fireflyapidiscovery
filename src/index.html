@@ -157,6 +157,8 @@ If a reference is duplicated include the duplicate url.`;
       const timestamp = getFormattedTimestamp();
 
       promptInput.value = '';
+      promptInput.style.height = '4em'; // reset height to original
+
       const entry = document.createElement('div');
       entry.className = 'entry';
       entry.innerHTML = `
