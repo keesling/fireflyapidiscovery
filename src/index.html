@@ -38,13 +38,16 @@
       gap: 0.5em;
     }
 
-    input#prompt {
+    textarea#prompt {
       width: 50%;
+      height: 4em;
       padding: 0.5em;
       font-size: 1em;
       border: 1px solid #ccc;
       border-radius: 4px;
+      resize: vertical; /* allow user to resize */
     }
+
 
     button {
       margin: 0.25em;
@@ -105,7 +108,7 @@
 
   <div class="prompt-container">
     <label for="prompt">Prompt</label>
-    <input type="text" id="prompt" placeholder="ask any question about firefly apis" />
+    <textarea id="prompt" placeholder="ask any question about firefly apis"></textarea>
   </div>
 
   <div>
