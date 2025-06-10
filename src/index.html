@@ -221,6 +221,12 @@ If a reference is duplicated include the duplicate url.`;
     function clearResponses() {
       document.getElementById('responseLog').innerHTML = '';
     }
+    const promptTextarea = document.getElementById('prompt');
+    promptTextarea.addEventListener('input', () => {
+        promptTextarea.style.height = 'auto'; // reset height
+        promptTextarea.style.height = promptTextarea.scrollHeight + 'px'; // adjust to content
+    });
+
   </script>
 </body>
 </html>
